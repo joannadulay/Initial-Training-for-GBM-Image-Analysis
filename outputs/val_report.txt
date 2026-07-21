@@ -1,0 +1,11 @@
+Validation Accuracy: 0.9570
+
+              precision    recall  f1-score   support
+
+     healthy     1.0000    1.0000    1.0000        30
+  discolored     0.9355    0.9355    0.9355        31
+    diseased     0.9375    0.9375    0.9375        32
+
+    accuracy                         0.9570        93
+   macro avg     0.9577    0.9577    0.9577        93
+weighted avg     0.9570    0.9570    0.9570        93

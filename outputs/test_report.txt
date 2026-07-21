@@ -1,0 +1,11 @@
+Test Accuracy: 0.9149
+
+              precision    recall  f1-score   support
+
+     healthy     0.9091    1.0000    0.9524        30
+  discolored     0.9286    0.8387    0.8814        31
+    diseased     0.9091    0.9091    0.9091        33
+
+    accuracy                         0.9149        94
+   macro avg     0.9156    0.9159    0.9143        94
+weighted avg     0.9155    0.9149    0.9138        94

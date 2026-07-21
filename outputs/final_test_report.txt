@@ -1,0 +1,17 @@
+Final Test Accuracy: 0.9348
+Final Test Macro F1: 0.9351
+
+              precision    recall  f1-score   support
+
+     healthy     0.9783    1.0000    0.9890        45
+  discolored     0.9111    0.9111    0.9111        45
+    diseased     0.9149    0.8958    0.9053        48
+
+    accuracy                         0.9348       138
+   macro avg     0.9348    0.9356    0.9351       138
+weighted avg     0.9343    0.9348    0.9345       138
+
+
+--- discolored vs diseased confusion ---
+discolored predicted as diseased: 4/45 (8.9%)
+diseased predicted as discolored: 4/48 (8.3%)

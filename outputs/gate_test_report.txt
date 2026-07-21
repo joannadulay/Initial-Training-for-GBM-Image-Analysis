@@ -1,0 +1,14 @@
+Gate Test Accuracy: 0.9840
+Gate Test Macro F1: 0.9781
+
+              precision    recall  f1-score   support
+
+       other     1.0000    0.9355    0.9667        31
+        leaf     0.9792    1.0000    0.9895        94
+
+    accuracy                         0.9840       125
+   macro avg     0.9896    0.9677    0.9781       125
+weighted avg     0.9843    0.9840    0.9838       125
+
+[[29  2]
+ [ 0 94]]
