@@ -1,9 +1,7 @@
-- dataset\discolored\image (168).jpg | TRUE=discolored -> PRED=diseased
-- dataset\diseased\image (157).jpg | TRUE=diseased -> PRED=discolored
-- dataset\discolored\Downy-Mildew(Malabar_Spinach)_1394.jpeg | TRUE=discolored -> PRED=diseased
-- dataset\discolored\image (80).jpg | TRUE=discolored -> PRED=diseased
-- dataset\diseased\image (90).jpg | TRUE=diseased -> PRED=healthy
-- dataset\discolored\image (86).jpg | TRUE=discolored -> PRED=diseased
-- dataset\diseased\image (119).jpg | TRUE=diseased -> PRED=discolored
-- dataset\diseased\image (134).jpg | TRUE=diseased -> PRED=discolored
-- dataset\diseased\image (151).jpg | TRUE=diseased -> PRED=discolored
+- dataset\discolored\image (82).jpg | TRUE=discolored -> PRED=diseased
+- dataset\diseased\image (310).jpg | TRUE=diseased -> PRED=discolored
+- dataset\diseased\image (84).jpeg | TRUE=diseased -> PRED=healthy
+- dataset\diseased\image (417).jpg | TRUE=diseased -> PRED=discolored
+- dataset\discolored\image (101).jpg | TRUE=discolored -> PRED=diseased
+- dataset\discolored\image (34).jpg | TRUE=discolored -> PRED=diseased
+- dataset\discolored\image (40).jpg | TRUE=discolored -> PRED=diseased

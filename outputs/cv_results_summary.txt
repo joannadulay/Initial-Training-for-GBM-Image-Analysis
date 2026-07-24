@@ -1,18 +1,18 @@
-Best CV macro F1: 0.9294
-Best parameters: {'subsample': 0.9, 'n_estimators': 40, 'min_samples_split': 16, 'min_samples_leaf': 4, 'max_features': None, 'max_depth': 3, 'learning_rate': 0.1}
+Best CV macro F1: 0.9016
+Best parameters: {'subsample': 0.9, 'n_estimators': 100, 'min_samples_split': 4, 'min_samples_leaf': 12, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.15}
 
 Top 10 parameter sets (sorted by CV score):
 
-1. mean_cv_f1=0.9294 ± 0.0139 | mean_train_f1=0.9871 | train_cv_gap=0.0577 | params={'subsample': 0.9, 'n_estimators': 40, 'min_samples_split': 16, 'min_samples_leaf': 4, 'max_features': None, 'max_depth': 3, 'learning_rate': 0.1}
-2. mean_cv_f1=0.9208 ± 0.0214 | mean_train_f1=0.9780 | train_cv_gap=0.0572 | params={'subsample': 0.9, 'n_estimators': 100, 'min_samples_split': 8, 'min_samples_leaf': 8, 'max_features': 'sqrt', 'max_depth': 3, 'learning_rate': 0.05}
-3. mean_cv_f1=0.9208 ± 0.0236 | mean_train_f1=0.9901 | train_cv_gap=0.0693 | params={'subsample': 0.9, 'n_estimators': 100, 'min_samples_split': 4, 'min_samples_leaf': 12, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.15}
-4. mean_cv_f1=0.9207 ± 0.0263 | mean_train_f1=0.9892 | train_cv_gap=0.0685 | params={'subsample': 1.0, 'n_estimators': 100, 'min_samples_split': 16, 'min_samples_leaf': 8, 'max_features': 'log2', 'max_depth': 4, 'learning_rate': 0.1}
-5. mean_cv_f1=0.9169 ± 0.0231 | mean_train_f1=0.9769 | train_cv_gap=0.0600 | params={'subsample': 0.9, 'n_estimators': 60, 'min_samples_split': 8, 'min_samples_leaf': 4, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.05}
-6. mean_cv_f1=0.9167 ± 0.0284 | mean_train_f1=0.9889 | train_cv_gap=0.0721 | params={'subsample': 1.0, 'n_estimators': 45, 'min_samples_split': 4, 'min_samples_leaf': 4, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.15}
-7. mean_cv_f1=0.9145 ± 0.0205 | mean_train_f1=0.9706 | train_cv_gap=0.0560 | params={'subsample': 1.0, 'n_estimators': 50, 'min_samples_split': 8, 'min_samples_leaf': 8, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.05}
-8. mean_cv_f1=0.9141 ± 0.0288 | mean_train_f1=0.9882 | train_cv_gap=0.0741 | params={'subsample': 1.0, 'n_estimators': 100, 'min_samples_split': 8, 'min_samples_leaf': 12, 'max_features': 'log2', 'max_depth': 4, 'learning_rate': 0.15}
-9. mean_cv_f1=0.9105 ± 0.0235 | mean_train_f1=0.9898 | train_cv_gap=0.0793 | params={'subsample': 1.0, 'n_estimators': 80, 'min_samples_split': 4, 'min_samples_leaf': 2, 'max_features': 'log2', 'max_depth': 4, 'learning_rate': 0.15}
-10. mean_cv_f1=0.9105 ± 0.0247 | mean_train_f1=0.9662 | train_cv_gap=0.0557 | params={'subsample': 0.9, 'n_estimators': 35, 'min_samples_split': 4, 'min_samples_leaf': 2, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.05}
+1. mean_cv_f1=0.9016 ± 0.0198 | mean_train_f1=0.9827 | train_cv_gap=0.0812 | params={'subsample': 0.9, 'n_estimators': 100, 'min_samples_split': 4, 'min_samples_leaf': 12, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.15}
+2. mean_cv_f1=0.9016 ± 0.0190 | mean_train_f1=0.9843 | train_cv_gap=0.0827 | params={'subsample': 1.0, 'n_estimators': 100, 'min_samples_split': 8, 'min_samples_leaf': 12, 'max_features': 'log2', 'max_depth': 4, 'learning_rate': 0.15}
+3. mean_cv_f1=0.8977 ± 0.0082 | mean_train_f1=0.9830 | train_cv_gap=0.0853 | params={'subsample': 1.0, 'n_estimators': 100, 'min_samples_split': 16, 'min_samples_leaf': 2, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.15}
+4. mean_cv_f1=0.8966 ± 0.0172 | mean_train_f1=0.9836 | train_cv_gap=0.0871 | params={'subsample': 1.0, 'n_estimators': 100, 'min_samples_split': 16, 'min_samples_leaf': 8, 'max_features': 'log2', 'max_depth': 4, 'learning_rate': 0.1}
+5. mean_cv_f1=0.8939 ± 0.0210 | mean_train_f1=0.9821 | train_cv_gap=0.0881 | params={'subsample': 1.0, 'n_estimators': 80, 'min_samples_split': 4, 'min_samples_leaf': 2, 'max_features': 'log2', 'max_depth': 4, 'learning_rate': 0.15}
+6. mean_cv_f1=0.8924 ± 0.0104 | mean_train_f1=0.9759 | train_cv_gap=0.0835 | params={'subsample': 0.9, 'n_estimators': 40, 'min_samples_split': 16, 'min_samples_leaf': 4, 'max_features': None, 'max_depth': 3, 'learning_rate': 0.1}
+7. mean_cv_f1=0.8923 ± 0.0218 | mean_train_f1=0.9711 | train_cv_gap=0.0788 | params={'subsample': 1.0, 'n_estimators': 50, 'min_samples_split': 8, 'min_samples_leaf': 8, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.05}
+8. mean_cv_f1=0.8915 ± 0.0147 | mean_train_f1=0.9840 | train_cv_gap=0.0925 | params={'subsample': 1.0, 'n_estimators': 45, 'min_samples_split': 4, 'min_samples_leaf': 4, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.15}
+9. mean_cv_f1=0.8914 ± 0.0123 | mean_train_f1=0.9830 | train_cv_gap=0.0916 | params={'subsample': 1.0, 'n_estimators': 100, 'min_samples_split': 8, 'min_samples_leaf': 8, 'max_features': 'log2', 'max_depth': 3, 'learning_rate': 0.15}
+10. mean_cv_f1=0.8910 ± 0.0233 | mean_train_f1=0.9746 | train_cv_gap=0.0835 | params={'subsample': 0.9, 'n_estimators': 100, 'min_samples_split': 8, 'min_samples_leaf': 8, 'max_features': 'sqrt', 'max_depth': 3, 'learning_rate': 0.05}
 
-Note: the #1 CV-score candidate has train_cv_gap=0.0577. A candidate within the top 10 generalizes more tightly (train_cv_gap=0.0557, mean_cv_f1=0.9105): {'subsample': 0.9, 'n_estimators': 35, 'min_samples_split': 4, 'min_samples_leaf': 2, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.05}
+Note: the #1 CV-score candidate has train_cv_gap=0.0812. A candidate within the top 10 generalizes more tightly (train_cv_gap=0.0788, mean_cv_f1=0.8923): {'subsample': 1.0, 'n_estimators': 50, 'min_samples_split': 8, 'min_samples_leaf': 8, 'max_features': 'sqrt', 'max_depth': 4, 'learning_rate': 0.05}
 Consider this alternative if you want steadier real-world behavior over the single best CV score.
