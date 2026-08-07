@@ -182,7 +182,7 @@ def count_leaflike_components(image_bgr):
     # A finger sliver or stray saturated speck can still pass the checks
     # above on its own while being tiny compared to the actual leaf. Only
     # count a region as a genuinely separate leaf if it's a substantial
-    # fraction of the biggest qualifying region -- two real leaves are
+    # fraction of the biggest qualifying region — two real leaves are
     # usually comparable in size, whereas incidental matches are not.
     largest = max(candidate_areas)
     significant_fraction = 0.25
@@ -250,29 +250,9 @@ def masked_pixels(channel, mask):
 
 
 def color_hist_features(hsv, mask):
-    """
-    Marginal (per-channel) histograms instead of a joint 3D H*S*V histogram.
-    The previous 8x8x8 joint histogram produced 512 dimensions from ~300
-    images per class -- far more bins than the data can reliably populate,
-    and highly sensitive to overall lighting/white-balance shifts between
-    training photos and new photos (since joint bins conflate hue, sat, and
-    brightness together). Per-channel histograms need far less data per bin
-    to be stable and isolate which channel is actually carrying signal.
-
-    H: 16 bins (hue is the most stable/meaningful channel for leaf color)
-    S: 12 bins (saturation - moderately useful, moderately lighting-sensitive)
-    V: 8 bins (brightness - most lighting-dependent, kept coarse on purpose)
-    Total: 36 dimensions instead of 512.
-    """
-    h_hist = cv2.calcHist([hsv], [0], mask, [16], [0, 180])
-    s_hist = cv2.calcHist([hsv], [1], mask, [12], [0, 256])
-    v_hist = cv2.calcHist([hsv], [2], mask, [8], [0, 256])
-
-    h_hist = cv2.normalize(h_hist, h_hist).flatten()
-    s_hist = cv2.normalize(s_hist, s_hist).flatten()
-    v_hist = cv2.normalize(v_hist, v_hist).flatten()
-
-    return np.concatenate([h_hist, s_hist, v_hist]).astype(np.float32)
+    hist = cv2.calcHist([hsv], [0, 1, 2], mask, [8, 8, 8], [0, 180, 0, 256, 0, 256])
+    hist = cv2.normalize(hist, hist).flatten()
+    return hist
 
 
 def lbp_features(gray, mask):
@@ -416,6 +396,13 @@ def engineered_features(image_bgr, hsv, gray, mask, leaf_ratio, seg_rejected):
     mean_v = float(np.mean(v_vals))
     std_gray = float(np.std(gray_vals))
 
+    black_on_yellow = dark_ratio * yellow_ratio
+
+    # Shape analysis on the dark mask itself (not a stricter re-threshold —
+    # that was missing real spots, as confirmed by debugging).
+    black_spot_shape = lesion_shape_features(dark_mask, mask_pixels)
+    has_black_spot = 1.0 if black_spot_shape[0] > 0 else 0.0  # lesion_count > 0
+
     base_features = np.array([
         yellow_ratio,
         green_ratio,
@@ -429,12 +416,13 @@ def engineered_features(image_bgr, hsv, gray, mask, leaf_ratio, seg_rejected):
         std_gray,
         leaf_ratio,
         1.0 if seg_rejected else 0.0,
+        black_on_yellow,
+        has_black_spot,
     ], dtype=np.float32)
 
     lesion_shape = lesion_shape_features(brown_mask, mask_pixels)
 
-    return np.concatenate([base_features, lesion_shape]).astype(np.float32)
-
+    return np.concatenate([base_features, lesion_shape, black_spot_shape]).astype(np.float32)
 
 def extract_features_from_bgr(image_bgr):
     image = cv2.resize(image_bgr, (IMG_SIZE, IMG_SIZE))
