@@ -10,11 +10,17 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay,
     accuracy_score,
     f1_score,
+    log_loss,
+    precision_score,
+    recall_score,
 )
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, StratifiedKFold
 from sklearn.utils.class_weight import compute_sample_weight
 
+import feature_extractor
 from feature_extractor import extract_features
+
+print(f"Using feature_extractor module from: {feature_extractor.__file__}")
 
 # ---------------------------
 # CONFIG
@@ -29,6 +35,14 @@ MODEL_PATH = MODEL_DIR / "gbm_model_cv.pkl"
 # this model should only ever see images that already passed the gate.
 CLASS_NAMES = ["healthy", "discolored", "diseased"]
 VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp"}
+
+# Current feature_extractor.py (color hist 512 + LBP 10 + GLCM 24 + edge 1
+# + engineered 17) produces a 570-length vector. If this ever drifts, it
+# almost always means a stale/duplicate feature_extractor.py got imported
+# instead of the one this script sits next to - which is exactly what
+# caused the last UI/model mismatch. Fail loudly here instead of silently
+# training a model the UI can't use.
+EXPECTED_FEATURE_LENGTH = 571
 
 MODEL_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -94,6 +108,47 @@ def plot_confusion_matrix(cm, class_names, path, normalize=False, title=""):
     plt.close(fig)
 
 
+def plot_training_results_grid(stage_metrics, path, title="Training Results"):
+    """
+    GBM equivalent of the YOLO 'results.png' grid: one row of train-set
+    curves and one row of val-set curves, plotted per boosting stage.
+
+    stage_metrics: dict with keys
+        train_loss, val_loss, train_acc, val_acc,
+        train_precision, val_precision, train_recall, val_recall
+    each a list of per-stage values (stage 1..N).
+    """
+    n_stages = len(stage_metrics["train_loss"])
+    x = range(1, n_stages + 1)
+
+    panels = [
+        ("Loss (log loss)", "train_loss", "val_loss"),
+        ("Accuracy", "train_acc", "val_acc"),
+        ("Precision (macro)", "train_precision", "val_precision"),
+        ("Recall (macro)", "train_recall", "val_recall"),
+    ]
+
+    fig, axes = plt.subplots(2, 4, figsize=(20, 8))
+
+    for col, (label, train_key, val_key) in enumerate(panels):
+        ax_train = axes[0, col]
+        ax_train.plot(x, stage_metrics[train_key], color="tab:blue")
+        ax_train.set_title(f"train/{label}")
+        ax_train.set_xlabel("Boosting stage")
+        ax_train.grid(True, alpha=0.3)
+
+        ax_val = axes[1, col]
+        ax_val.plot(x, stage_metrics[val_key], color="tab:orange")
+        ax_val.set_title(f"val/{label}")
+        ax_val.set_xlabel("Boosting stage")
+        ax_val.grid(True, alpha=0.3)
+
+    fig.suptitle(title, fontsize=14)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
 def report_pairwise_confusion(cm, class_names, label_a, label_b, out_lines):
     """Explicitly surface how often two specific classes get mixed up."""
     idx_a = class_names.index(label_a)
@@ -122,6 +177,16 @@ def main():
 
     print(f"\nTotal samples: {len(X)}")
     print(f"Feature length: {X.shape[1]}")
+
+    if X.shape[1] != EXPECTED_FEATURE_LENGTH:
+        raise RuntimeError(
+            f"Feature length mismatch: got {X.shape[1]}, expected "
+            f"{EXPECTED_FEATURE_LENGTH}. This almost always means the "
+            f"feature_extractor.py being imported here (see path printed "
+            f"above) is not the current one. Fix the import before "
+            f"training, or this model will fail in the UI the same way "
+            f"the last one did."
+        )
 
     # -----------------------------------------
     # FINAL TEST SET (keep this untouched)
@@ -299,7 +364,27 @@ def main():
             mis_lines.append(line)
 
     save_text(OUTPUT_DIR / "final_test_misclassified.txt", "\n".join(mis_lines))
+    print("\nSample correctly classified final test images:")
+    import random
+    random.seed(42)
 
+    correct_by_class = {name: [] for name in CLASS_NAMES}
+    for i in range(len(y_test)):
+        if y_test[i] == y_test_pred[i]:
+            true_label = CLASS_NAMES[y_test[i]]
+            correct_by_class[true_label].append(test_paths[i])
+
+    correct_lines = []
+    for class_name in CLASS_NAMES:
+        samples = correct_by_class[class_name]
+        n_pick = min(2, len(samples))
+        picked = random.sample(samples, n_pick)
+        for p in picked:
+            line = f"- {p} | TRUE={class_name} -> PRED={class_name}"
+            print(line)
+            correct_lines.append(line)
+
+    save_text(OUTPUT_DIR / "final_test_correct_samples.txt", "\n".join(correct_lines))
     # -----------------------------------------
     # OPTIONAL: STAGED CURVE ON FULL DEV SET
     # -----------------------------------------
@@ -319,16 +404,56 @@ def main():
     )
     curve_model.fit(X_train_curve, y_train_curve, sample_weight=sw_train_curve)
 
+    all_class_labels = list(range(len(CLASS_NAMES)))
+
     train_stage_acc = []
     val_stage_acc = []
+    train_stage_loss = []
+    val_stage_loss = []
+    train_stage_precision = []
+    val_stage_precision = []
+    train_stage_recall = []
+    val_stage_recall = []
 
-    for y_train_stage_pred, y_val_stage_pred in zip(
+    for (
+        y_train_stage_pred,
+        y_val_stage_pred,
+        train_stage_proba,
+        val_stage_proba,
+    ) in zip(
         curve_model.staged_predict(X_train_curve),
-        curve_model.staged_predict(X_val_curve)
+        curve_model.staged_predict(X_val_curve),
+        curve_model.staged_predict_proba(X_train_curve),
+        curve_model.staged_predict_proba(X_val_curve),
     ):
         train_stage_acc.append(accuracy_score(y_train_curve, y_train_stage_pred))
         val_stage_acc.append(accuracy_score(y_val_curve, y_val_stage_pred))
 
+        # labels= pins the class order/count so log_loss doesn't choke if a
+        # given stage's predictions happen to miss a class entirely.
+        train_stage_loss.append(
+            log_loss(y_train_curve, train_stage_proba, labels=all_class_labels)
+        )
+        val_stage_loss.append(
+            log_loss(y_val_curve, val_stage_proba, labels=all_class_labels)
+        )
+
+        train_stage_precision.append(
+            precision_score(y_train_curve, y_train_stage_pred, average="macro", zero_division=0)
+        )
+        val_stage_precision.append(
+            precision_score(y_val_curve, y_val_stage_pred, average="macro", zero_division=0)
+        )
+
+        train_stage_recall.append(
+            recall_score(y_train_curve, y_train_stage_pred, average="macro", zero_division=0)
+        )
+        val_stage_recall.append(
+            recall_score(y_val_curve, y_val_stage_pred, average="macro", zero_division=0)
+        )
+
+    # Original single-panel accuracy curve — kept as-is for continuity with
+    # earlier reports/write-ups that already reference this file.
     plt.figure(figsize=(8, 5))
     plt.plot(range(1, len(train_stage_acc) + 1), train_stage_acc, label="Training Accuracy")
     plt.plot(range(1, len(val_stage_acc) + 1), val_stage_acc, label="Validation Accuracy")
@@ -344,6 +469,35 @@ def main():
     plt.close()
 
     print(f"\nSaved diagnostic curve to: {plot_path}")
+
+    # New multi-panel grid (loss / accuracy / precision / recall, train row
+    # + val row) — the GBM equivalent of a YOLO-style training results figure.
+    stage_metrics = {
+        "train_loss": train_stage_loss,
+        "val_loss": val_stage_loss,
+        "train_acc": train_stage_acc,
+        "val_acc": val_stage_acc,
+        "train_precision": train_stage_precision,
+        "val_precision": val_stage_precision,
+        "train_recall": train_stage_recall,
+        "val_recall": val_stage_recall,
+    }
+
+    grid_path = OUTPUT_DIR / "training_results_grid.png"
+    plot_training_results_grid(stage_metrics, grid_path, title="GBM Training Results")
+    print(f"Saved training results grid to: {grid_path}")
+
+    save_text(
+        OUTPUT_DIR / "training_results_grid_values.txt",
+        "\n".join(
+            f"stage={i+1} "
+            f"train_loss={stage_metrics['train_loss'][i]:.4f} val_loss={stage_metrics['val_loss'][i]:.4f} "
+            f"train_acc={stage_metrics['train_acc'][i]:.4f} val_acc={stage_metrics['val_acc'][i]:.4f} "
+            f"train_precision={stage_metrics['train_precision'][i]:.4f} val_precision={stage_metrics['val_precision'][i]:.4f} "
+            f"train_recall={stage_metrics['train_recall'][i]:.4f} val_recall={stage_metrics['val_recall'][i]:.4f}"
+            for i in range(len(train_stage_acc))
+        ),
+    )
 
     # -----------------------------------------
     # SAVE FINAL MODEL
