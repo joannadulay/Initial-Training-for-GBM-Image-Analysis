@@ -1,0 +1,20 @@
+{
+    "calibration_points": [
+        {
+            "ph": 3.99,
+            "voltage": 1.6714375000000004
+        },
+        {
+            "ph": 7.50,
+            "voltage": 1.8530249999999997
+        },
+
+
+        {
+            "ph": 8.9,
+            "voltage": 2.0117541666666665
+        }
+    ],
+    "sample_count": 20,
+    "sample_delay": 0.5
+}

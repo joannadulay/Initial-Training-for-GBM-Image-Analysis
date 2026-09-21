@@ -1,0 +1,13 @@
+{
+    "type": "two_point",
+    "point_1": {
+        "raw_temp_c": 26.1,
+        "reference_temp_c": 26.3
+    },
+    "point_2": {
+        "raw_temp_c": 29.8268,
+        "reference_temp_c": 30.3
+    },
+    "slope": 1.01058589,
+    "intercept": 0.15745686
+}
